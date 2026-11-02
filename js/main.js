@@ -2,6 +2,47 @@
    ZAKIR'S REALTY — MAIN JS
    ============================================ */
 
+// ── SLOW FOLLOW CURSOR ──
+(function initCursor() {
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (!finePointer || reducedMotion) return;
+
+  const dot = document.createElement('div');
+  dot.className = 'custom-cursor cursor-dot';
+  dot.setAttribute('aria-hidden', 'true');
+  const ring = document.createElement('div');
+  ring.className = 'custom-cursor cursor-ring';
+  ring.setAttribute('aria-hidden', 'true');
+  document.body.append(dot, ring);
+  document.body.classList.add('custom-cursor-enabled');
+
+  let targetX = -100;
+  let targetY = -100;
+  let ringX = targetX;
+  let ringY = targetY;
+
+  window.addEventListener('pointermove', event => {
+    targetX = event.clientX;
+    targetY = event.clientY;
+    dot.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) translate(-50%, -50%)`;
+    document.body.classList.add('custom-cursor-visible');
+    ring.classList.toggle('is-hovering', Boolean(event.target.closest('a, button, input, select, textarea, [role="button"]')));
+  });
+
+  document.documentElement.addEventListener('mouseleave', () => {
+    document.body.classList.remove('custom-cursor-visible');
+  });
+
+  function followPointer() {
+    ringX += (targetX - ringX) * 0.12;
+    ringY += (targetY - ringY) * 0.12;
+    ring.style.transform = `translate3d(${ringX}px, ${ringY}px, 0) translate(-50%, -50%)`;
+    requestAnimationFrame(followPointer);
+  }
+  followPointer();
+})();
+
 // ── NAVBAR SCROLL ──
 const navbar = document.getElementById('navbar');
 const scrollThreshold = 60;
@@ -164,33 +205,41 @@ const leadForm = document.getElementById('leadForm');
 leadForm?.addEventListener('submit', async (e) => {
   e.preventDefault();
   const btn = leadForm.querySelector('[type="submit"]');
-  const origText = btn.innerHTML;
-  btn.innerHTML = 'Sending…'; btn.disabled = true;
+  const status = document.getElementById('leadFormStatus');
+  if (!btn) return;
+  const originalText = btn.textContent;
+  btn.textContent = 'Sending…';
+  btn.disabled = true;
+  if (status) status.textContent = '';
 
   const data = Object.fromEntries(new FormData(leadForm).entries());
-
-  // n8n webhook — replace URL with your actual n8n webhook
-  const WEBHOOK_URL = 'https://your-n8n-instance.com/webhook/zakirs-realty-lead';
+  const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxPD0EuZ6zFXfpMqCXSRctc-KtoPk6qaK-vqTg0cQtpNhwGN_szsy9O3kbQ9G4ooSNqLA/exec';
 
   try {
-    await fetch(WEBHOOK_URL, {
+    await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...data, source: 'Website Lead Form', timestamp: new Date().toISOString() })
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        ...data,
+        propertyType: data.type || 'Not specified',
+        visitDate: '',
+        timeSlot: '',
+        notes: data.message ? `Contact form: ${data.message}` : 'Contact form enquiry',
+        timestamp: new Date().toISOString()
+      })
     });
-  } catch (_) { /* silent fail — still show success */ }
+  } catch (error) {
+    console.error('Contact form submission failed:', error);
+    if (status) status.textContent = 'We could not send your enquiry. Please try again.';
+    btn.textContent = originalText;
+    btn.disabled = false;
+    return;
+  }
 
   leadForm.style.display = 'none';
   const success = document.getElementById('formSuccess');
   if (success) success.classList.add('show');
-
-  // Also open WhatsApp
-  const waMsg = encodeURIComponent(
-    `Hi Zakir's Realty! My name is ${data.name}. I'm looking for a property in ${data.location} with a budget of ${data.budget}. Please help me find the best options!`
-  );
-  setTimeout(() => {
-    window.open(`https://wa.me/917999602952?text=${waMsg}`, '_blank');
-  }, 1200);
 });
 
 // ── PROPERTY FILTER ──
