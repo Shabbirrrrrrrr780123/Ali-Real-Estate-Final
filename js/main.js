@@ -62,14 +62,21 @@ const mobileNavClose = document.getElementById('mobileNavClose');
 
 hamburger?.addEventListener('click', () => {
   mobileNav?.classList.add('open');
+  hamburger.setAttribute('aria-expanded', 'true');
+  mobileNavClose?.focus();
   document.body.style.overflow = 'hidden';
 });
 mobileNavClose?.addEventListener('click', closeMobileNav);
 mobileNav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMobileNav));
+document.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && mobileNav?.classList.contains('open')) closeMobileNav();
+});
 
 function closeMobileNav() {
   mobileNav?.classList.remove('open');
+  hamburger?.setAttribute('aria-expanded', 'false');
   document.body.style.overflow = '';
+  hamburger?.focus();
 }
 
 // ── HERO PARTICLE CANVAS ──
