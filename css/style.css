@@ -187,58 +187,64 @@ p { font-size: clamp(0.9rem, 1.5vw, 1.05rem); color: var(--text-secondary); line
   z-index: 1100;
   overflow-y: auto;
   padding: max(88px, calc(env(safe-area-inset-top) + 72px)) 24px max(32px, env(safe-area-inset-bottom));
-  background:
-    radial-gradient(ellipse at 50% 35%, rgba(255,106,0,0.12), transparent 55%),
-    rgba(11,11,11,0.98);
-  backdrop-filter: blur(20px);
+  background: #0B0B0B;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 14px;
+  gap: 4px;
 }
 .mobile-nav.open { display: flex; animation: mobile-nav-enter 0.25s ease both; }
 .mobile-nav::before {
-  content: 'MENU';
+  content: 'ALI REAL ESTATE';
   position: absolute;
-  top: max(30px, env(safe-area-inset-top));
-  left: 50%;
-  transform: translateX(-50%);
+  top: max(30px, calc(env(safe-area-inset-top) + 12px));
+  left: 24px;
   color: var(--accent);
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
 }
 .mobile-nav a:not(.btn) {
   width: min(100%, 340px);
-  padding: 10px 20px;
-  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
   text-align: center;
   font-family: var(--font-display);
-  font-size: clamp(1.7rem, 8vw, 2.1rem);
+  font-size: clamp(1.35rem, 5vw, 1.65rem);
   color: var(--text-primary);
   transition: var(--transition);
 }
 .mobile-nav a:not(.btn):hover { color: var(--accent); transform: translateY(-2px); }
-.mobile-nav .btn { margin-top: 16px; }
+.mobile-nav .btn { margin-top: 14px; padding: 14px 26px; font-size: 0.95rem; }
 .mobile-nav-close {
   position: absolute;
   top: max(16px, env(safe-area-inset-top));
   right: max(16px, env(safe-area-inset-right));
   z-index: 1;
-  display: grid;
+  display: block;
   width: 48px;
   height: 48px;
-  place-items: center;
+  padding: 0;
+  appearance: none;
   border: 1px solid var(--border-accent);
-  border-radius: 14px;
-  background: rgba(255,106,0,0.12);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: 1.8rem;
-  line-height: 1;
+  border-radius: 50%;
+  background: #17120F;
   cursor: pointer;
   transition: var(--transition);
 }
+.mobile-nav-close::before,
+.mobile-nav-close::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 19px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+.mobile-nav-close::before { transform: translate(-50%, -50%) rotate(45deg); }
+.mobile-nav-close::after { transform: translate(-50%, -50%) rotate(-45deg); }
 .mobile-nav-close:hover { background: var(--accent); transform: rotate(90deg); }
 @keyframes mobile-nav-enter {
   from { opacity: 0; }
