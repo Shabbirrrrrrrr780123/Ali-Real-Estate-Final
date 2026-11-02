@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Site Visit | Ali Real Estate — Indore</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .visit-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.6fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .visit-sidebar { position: sticky; top: 110px; }
+    .visit-sidebar h2 { margin-bottom: 14px; }
+    .visit-sidebar > p { margin-bottom: 40px; }
+
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step {
+      display: flex; gap: 18px; align-items: flex-start;
+      position: relative; padding-bottom: 32px;
+    }
+    .step:last-child { padding-bottom: 0; }
+    .step::before {
+      content: ''; position: absolute;
+      left: 17px; top: 40px;
+      width: 2px; height: calc(100% - 20px);
+      background: var(--border);
+    }
+    .step:last-child::before { display: none; }
+    .step-num {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,106,0,0.12); border: 1px solid var(--border-accent);
+      color: var(--accent); display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+      font-family: var(--font-mono); position: relative; z-index: 1;
+    }
+    .step-body h4 { font-family: var(--font-body); font-size: 0.97rem; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .step-body p { font-size: 0.83rem; }
+
+    .guarantee-box {
+      margin-top: 32px; padding: 22px 24px;
+      background: rgba(255,106,0,0.05);
+      border: 1px solid var(--border-accent);
+      border-radius: var(--radius);
+    }
+    .guarantee-box .g-label {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      text-transform: uppercase; letter-spacing: 0.12em;
+      color: var(--accent); margin-bottom: 8px;
+    }
+    .guarantee-box p { font-size: 0.84rem; }
+
+    .trust-list { margin-top: 24px; display: flex; flex-direction: column; gap: 10px; }
+    .trust-item { display: flex; align-items: center; gap: 10px; font-size: 0.83rem; color: var(--text-secondary); }
+    .trust-item svg { flex-shrink: 0; }
+
+    /* Form card */
+    .form-card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 40px;
+    }
+    .form-card-header { margin-bottom: 32px; }
+    .form-card-header h3 { font-family: var(--font-display); font-size: 2rem; color: var(--text-primary); margin-bottom: 6px; }
+    .form-card-header p { font-size: 0.88rem; }
+
+    .field-section { margin-bottom: 28px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+    .field-section:last-of-type { border-bottom: none; margin-bottom: 0; }
+    .field-section-label {
+      font-family: var(--font-mono); font-size: 0.68rem;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--accent); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .field-section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-accent); }
+
+    /* Time slots */
+    .time-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .time-slot {
+      border: 1px solid var(--border); border-radius: 8px;
+      padding: 13px 14px; cursor: pointer; transition: var(--transition);
+      text-align: center; font-size: 0.84rem; color: var(--text-secondary);
+      background: var(--bg-secondary); user-select: none;
+    }
+    .time-slot:hover { border-color: var(--accent); color: var(--text-primary); }
+    .time-slot.selected { border-color: var(--accent); background: rgba(255,106,0,0.1); color: var(--accent); font-weight: 600; }
+    .time-slot input { display: none; }
+
+    /* Validation */
+    .form-input.error, .form-select.error { border-color: #ff5555 !important; }
+    .field-error { font-size: 0.75rem; color: #ff7777; margin-top: 5px; display: none; }
+    .field-error.show { display: block; }
+    #timeError { margin-top: 8px; }
+
+    /* Submit button */
+    .btn-submit { width: 100%; justify-content: center; position: relative; min-height: 54px; }
+    .btn-spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+      position: absolute;
+    }
+    .btn-submit.loading .btn-text { opacity: 0; }
+    .btn-submit.loading .btn-spinner { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Success */
+    .success-screen { display: none; text-align: center; padding: 10px 0; }
+    .success-screen.show { display: block; }
+    .success-icon-wrap {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: rgba(255,106,0,0.1); border: 2px solid var(--border-accent);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 24px; font-size: 2.2rem;
+    }
+    .success-screen h3 { font-family: var(--font-display); font-size: 2rem; margin-bottom: 10px; }
+    .success-screen > p { max-width: 360px; margin: 0 auto 24px; }
+    .booking-summary {
+      background: var(--bg-secondary); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 24px;
+      text-align: left; margin-bottom: 28px;
+      font-size: 0.88rem; line-height: 2.1;
+    }
+    .booking-summary strong { color: var(--text-primary); }
+    .success-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    @media (max-width: 960px) { .visit-layout { grid-template-columns: 1fr; } .visit-sidebar { position: static; } }
+    @media (max-width: 480px) { .form-card { padding: 22px; } .time-slots { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="../index.html" class="nav-logo">Ali <span>Real Estate</span></a>
+    <ul class="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="properties.html">Properties</a></li>
+      <li><a href="investment.html">Invest</a></li>
+      <li><a href="about.html">About</a></li>
+      <li><a href="blog.html">Insights</a></li>
+      <li><a href="contact.html">Contact</a></li>
+    </ul>
+    <div class="nav-cta"><a href="book-visit.html" class="btn btn-primary">Book Site Visit</a></div>
+    <div class="hamburger" id="hamburger"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <span class="mobile-nav-close" id="mobileNavClose">✕</span>
+  <a href="../index.html">Home</a>
+  <a href="properties.html">Properties</a>
+  <a href="investment.html">Invest</a>
+  <a href="about.html">About</a>
+  <a href="blog.html">Insights</a>
+  <a href="contact.html">Contact</a>
+  <a href="book-visit.html" class="btn btn-primary btn-lg" style="margin-top:10px;">Book Site Visit</a>
+</div>
+
+<div class="page-hero">
+  <div class="container">
+    <div class="badge" style="margin:0 auto 16px;">100% Free · No Obligation</div>
+    <h1>Book Your <em>Site Visit</em></h1>
+    <p>Schedule a free visit to any property — we arrange everything, you just show up.</p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="visit-layout">
+
+      <!-- SIDEBAR -->
+      <div class="visit-sidebar reveal">
+        <div class="badge" style="margin-bottom:20px;">How It Works</div>
+        <h2>3 Steps to Your <em>Dream Home</em></h2>
+        <p>Takes less than 2 minutes to book. We handle the rest.</p>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <h4>Fill the Form</h4>
+              <p>Share your name, number, preferred date, time slot, and location. That's it.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <h4>Ali Real Estate Confirms on WhatsApp</h4>
+              <p>You'll receive a WhatsApp confirmation from Ali Real Estate your slot within 30 minutes.</p>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <h4>Visit & Decide</h4>
+              <p>Our expert takes you through the property, answers every question — zero pressure to buy.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="guarantee-box">
+          <div class="g-label">🛡️ Our Promise</div>
+          <p>Site visits are <strong style="color:var(--text-primary);">completely free</strong>. We earn only when you happily close a deal — from the builder, never from you.</p>
+        </div>
+
+        <div class="trust-list">
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirmed within 30 minutes
+          </div>
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            250+ families served in Indore
+          </div>
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            RERA compliant properties only
+          </div>
+          <div class="trust-item">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Mon – Sat, 9 AM to 7 PM
+          </div>
+        </div>
+      </div>
+
+      <!-- FORM CARD -->
+      <div class="form-card reveal reveal-delay-2">
+
+        <form id="visitForm" novalidate>
+          <div class="form-card-header">
+            <h3>Schedule Your <em>Visit</em></h3>
+            <p>We'll WhatsApp you a confirmation within 30 minutes of submitting.</p>
+          </div>
+
+          <!-- Personal Details -->
+          <div class="field-section">
+            <div class="field-section-label">Your Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="name">Full Name *</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Rahul Verma" autocomplete="name" />
+                <div class="field-error" id="nameError">Please enter your full name.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="phone">WhatsApp Number *</label>
+                <input type="tel" id="phone" name="phone" class="form-input" placeholder="e.g. 98765 43210" autocomplete="tel" maxlength="15" />
+                <div class="field-error" id="phoneError">Please enter a valid 10-digit mobile number.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visit Preferences -->
+          <div class="field-section">
+            <div class="field-section-label">Visit Preferences</div>
+            <div class="form-row" style="margin-bottom:20px;">
+              <div class="form-group">
+                <label class="form-label" for="location">Preferred Location *</label>
+                <select id="location" name="location" class="form-select form-input">
+                  <option value="">Select area…</option>
+                  <option value="Bijalpur (Rau)">Bijalpur (Rau)</option>
+                  <option value="Manik Bagh">Manik Bagh</option>
+                  <option value="Khatiwala Tank">Khatiwala Tank</option>
+                  <option value="Dhar Road">Dhar Road</option>
+                  <option value="Not Sure — Need Guidance">Not Sure — Need Guidance</option>
+                </select>
+                <div class="field-error" id="locationError">Please select a location.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="budget">Your Budget *</label>
+                <select id="budget" name="budget" class="form-select form-input">
+                  <option value="">Select budget…</option>
+                  <option value="₹20L – ₹35L">₹20L – ₹35L</option>
+                  <option value="₹35L – ₹50L">₹35L – ₹50L</option>
+                  <option value="₹50L – ₹75L">₹50L – ₹75L</option>
+                  <option value="₹75L – ₹1Cr">₹75L – ₹1Cr</option>
+                  <option value="₹1Cr+">₹1Cr+</option>
+                </select>
+                <div class="field-error" id="budgetError">Please select your budget.</div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="visitDate">Preferred Date *</label>
+                <input type="date" id="visitDate" name="visitDate" class="form-input" />
+                <div class="field-error" id="dateError">Please select today or a future date.</div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="propertyType">Property Type</label>
+                <select id="propertyType" name="propertyType" class="form-select form-input">
+                  <option value="Not specified">Any type</option>
+                  <option value="1 BHK Flat">1 BHK Flat</option>
+                  <option value="2 BHK Flat">2 BHK Flat</option>
+                  <option value="3 BHK Flat">3 BHK Flat</option>
+                  <option value="Villa / Bungalow">Villa / Bungalow</option>
+                  <option value="Plot / Land">Plot / Land</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Slot -->
+          <div class="field-section">
+            <div class="field-section-label">Preferred Time Slot *</div>
+            <div class="time-slots" id="timeSlots">
+              <label class="time-slot">
+                <input type="radio" name="timeSlot" value="9:00 AM – 11:00 AM" />
+                🌅 9:00 AM – 11:00 AM
+              </label>
+              <label class="time-slot">
+                <input type="radio" name="timeSlot" value="11:00 AM – 1:00 PM" />
+                ☀️ 11:00 AM – 1:00 PM
+              </label>
+              <label class="time-slot">
+                <input type="radio" name="timeSlot" value="2:00 PM – 4:00 PM" />
+                🌤️ 2:00 PM – 4:00 PM
+              </label>
+              <label class="time-slot">
+                <input type="radio" name="timeSlot" value="4:00 PM – 6:00 PM" />
+                🌇 4:00 PM – 6:00 PM
+              </label>
+            </div>
+            <div class="field-error" id="timeError">Please select a preferred time slot.</div>
+          </div>
+
+          <!-- Notes -->
+          <div class="field-section">
+            <div class="field-section-label">Special Requirements</div>
+            <textarea id="notes" name="notes" class="form-textarea" style="min-height:85px;"
+              placeholder="e.g. Vastu compliant, ground floor, near school, ready-to-move, specific project name…"></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-submit" id="submitBtn">
+            <div class="btn-spinner"></div>
+            <span class="btn-text">Confirm My Site Visit →</span>
+          </button>
+          <p style="text-align:center;font-size:0.74rem;color:var(--text-muted);margin-top:11px;">
+            By submitting you agree to be contacted via WhatsApp. No spam, ever.
+          </p>
+        </form>
+
+        <!-- SUCCESS STATE -->
+        <div class="success-screen" id="successScreen">
+          <div class="success-icon-wrap">🏠</div>
+          <h3>Visit <em>Booked!</em></h3>
+          <p>Your booking has been received by Ali Real Estate. Expect a WhatsApp confirmation within 30 minutes.</p>
+          <div class="booking-summary" id="bookingSummary"></div>
+          <div class="success-actions">
+            <a href="https://wa.me/917999602952" target="_blank" class="btn btn-whatsapp">
+              <svg viewBox="0 0 24 24" fill="currentColor" style="width:18px;height:18px"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+              Chat on WhatsApp
+            </a>
+            <a href="properties.html" class="btn btn-outline">Browse Properties</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-bottom">
+      <p>© 2024 Ali Real Estate. All rights reserved. Made with <span>♥</span> in Indore.</p>
+      <p>RERA Compliant · Trusted by 250+ Families</p>
+    </div>
+  </div>
+</footer>
+
+<a href="https://wa.me/917999602952?text=Hi!%20I%20want%20to%20book%20a%20site%20visit." target="_blank" class="whatsapp-float">
+  <div class="whatsapp-tooltip">Book a visit!</div>
+  <svg viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+</a>
+
+<script src="../js/main.js"></script>
+<script src="../js/book-visit.js"></script>
+</body>
+</html>
